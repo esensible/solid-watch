@@ -143,7 +143,7 @@ export interface ProgressProps {
 }
 
 export interface IconProps {
-  /** SF Symbol name, e.g. wind or heart.fill; null (or a name the watch lacks) draws nothing. */
+  /** SF Symbol name, e.g. star.fill or heart.fill; null (or a name the watch lacks) draws nothing. */
   name?: string | null;
   /** Point size of the symbol's font. */
   size?: number | null;
@@ -176,7 +176,7 @@ export interface CrownProps {
   max?: number | null;
   /** Values are min (or 0) + a multiple of increment, with a detent click each; null = continuous. */
   increment?: number | null;
-  /** With min and max: past max comes min again (a heading 0..360). Values are then in min..max, max excluded. */
+  /** With min and max: past max comes min again (an angle 0..360). Values are then in min..max, max excluded. */
   wrap?: boolean | null;
   /** How far a turn moves the value (watchOS DigitalCrownRotationalSensitivity). */
   sensitivity?: "low" | "medium" | "high" | null;

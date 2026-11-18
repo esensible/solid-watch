@@ -23,6 +23,7 @@ fonts/                   the one font both hosts use (Inter, OFL)
 test/                    node tests, qjs runner, fixture generators
 fixtures/                golden mutation logs, expected frames, layout-parity cases
 Sources/SolidWatch/      Swift package (Generated/NodeProps.swift is generated)
+Examples/                example bundles (stopwatch, checklist, gauge) and the demo watch app: Examples/README.md
 quickjs-ng/              the engine: a git submodule, quickjs-ng v0.17.0, source of the framework below
 Frameworks/CQuickJS.xcframework   quickjs-ng prebuilt, optimised: a build output (scripts/build-quickjs-xcframework.sh)
 ```
@@ -294,7 +295,7 @@ lives in the core schema. The schema's `version` is the contract version
 ## Controls and styling
 
 What a watch UI can say, in the schema's terms. The bar for adding a node
-or prop: a glanceable sports/sailing screen needs it, SwiftUI on watchOS
+or prop: a glanceable watch screen needs it, SwiftUI on watchOS
 draws it well, and both hosts can make it mean exactly the same thing
 (frames are Yoga's, so nothing a host draws may change layout; a rule with
 arithmetic in it is written once in `browser/controls.js`, ported line for
@@ -662,7 +663,7 @@ Everything runs in a container with node ≥ 20 (no host installs).
 ```
 npm ci
 node codegen/codegen.mjs            # after editing the schema
-QJS=/path/to/qjs sh test/all.sh     # codegen check, build test bundles, fixtures (qjs vs node), tests, boundary
+QJS=/path/to/qjs sh test/all.sh     # codegen check, build test bundles, fixtures (qjs vs node), tests, boundary, examples
 npm run dev                         # harness on :5180, open /browser/
                                     # /browser/?bundle=events&selftest=taps&n=30: tap self-test
 ```

@@ -2,23 +2,127 @@ import SolidWatch
 import SwiftUI
 import os
 
-/// solid-watch demo: at launch, runs every fixture bundle through its golden
-/// driver script and diffs the mutation log against the golden one (the
-/// integrity check), then shows one bundle live: by default the `timers`
-/// bundle, interactively (its countdown runs on the watch's clock against a
-/// device time from a state; Send asks for two confirm taps; the bundle's
-/// log lines and every send(bytes) are printed); another bundle named in
-/// LocalFixtures/live.txt instead cycles its fixture states, timing each
-/// update. Results are printed (prefix "DEMO "), logged (subsystem
+/// solid-watch demo, two parts:
+///
+/// - The examples (Examples/bundles in the repository): each one built there
+///   (`npm run build`) is copied into the app at build time (the "Example
+///   bundles" build phase, example-bundles.sh) and listed at launch; tap one
+///   to run it full screen. With none built, the app opens on the fixtures.
+/// - The fixtures: at launch, runs every fixture bundle through its golden
+///   driver script and diffs the mutation log against the golden one (the
+///   integrity check), then shows one bundle live: by default the `timers`
+///   bundle, interactively (its countdown runs on the watch's clock against
+///   a device time from a state; Send asks for two confirm taps; the
+///   bundle's log lines and every send(bytes) are printed); another bundle
+///   named in LocalFixtures/live.txt instead cycles its fixture states,
+///   timing each update. Double-tap shows the report.
+///
+/// Results are printed (prefix "DEMO "), logged (subsystem
 /// au.esensible.solidwatch.demo) and written to Documents/demo-results.txt.
 @main
 struct DemoApp: App {
     var body: some Scene {
-        WindowGroup { DemoView() }
+        WindowGroup {
+            if let name = Examples.launchName {
+                ExampleView(name: name, play: Examples.launchPlays)
+            } else if Examples.names.isEmpty {
+                FixturesView()
+            } else {
+                NavigationStack {
+                    List {
+                        Section("Examples") {
+                            ForEach(Examples.names, id: \.self) { name in
+                                NavigationLink(name.capitalized) { ExampleView(name: name) }
+                            }
+                        }
+                        Section("Package") {
+                            NavigationLink("Fixtures") { FixturesView() }
+                        }
+                    }
+                    .navigationTitle("SolidWatch")
+                }
+            }
+        }
     }
 }
 
-struct DemoView: View {
+/// The built examples bundled at build time: Examples/<name>/bundle.js.
+enum Examples {
+    static var dir: URL? { Bundle.main.url(forResource: "Examples", withExtension: nil) }
+
+    static var names: [String] {
+        guard let dir else { return [] }
+        let all = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        return all.filter { FileManager.default.fileExists(atPath: dir.appendingPathComponent("\($0)/bundle.js").path) }.sorted()
+    }
+
+    /// Launched with `-example <name>`: that example straight away, without
+    /// the list (`xcrun simctl launch <device> au.esensible.solidwatch.demo
+    /// -example gauge`); with `-play` too, its script.json is played on it
+    /// (`-play 5`: its first 5 steps).
+    static var launchName: String? {
+        let a = ProcessInfo.processInfo.arguments
+        guard let i = a.firstIndex(of: "-example"), i + 1 < a.count, names.contains(a[i + 1]) else { return nil }
+        return a[i + 1]
+    }
+
+    /// How many script steps to play: none without `-play`, all with it alone.
+    static var launchPlays: Int {
+        let a = ProcessInfo.processInfo.arguments
+        guard let i = a.firstIndex(of: "-play") else { return 0 }
+        return i + 1 < a.count ? Int(a[i + 1]) ?? .max : .max
+    }
+}
+
+/// One example, full screen: its bundle on a session of its own, no state
+/// (an example keeps its own), its log lines printed. With `play`, the
+/// example's script.json (written by its test: taps, crown turns, states and
+/// waits, the tags those of this host's numbering) is played on it, its
+/// first `play` steps, a second between steps and waits in real time; then
+/// the last screen stays.
+struct ExampleView: View {
+    let name: String
+    var play = 0
+    @StateObject private var session = SolidWatchSession()
+
+    var body: some View {
+        MountView(session: session)
+            .task {
+                let out = Out()
+                Fixtures.registerFont(out)
+                guard let url = Examples.dir?.appendingPathComponent("\(name)/bundle.js"),
+                      let src = try? Data(contentsOf: url) else {
+                    out("example \(name): no bundle.js")
+                    return
+                }
+                session.onLog = { m in out("\(name): \(m)") }
+                session.load(src, filename: "\(name).js")
+                out("example \(name): loaded \(src.count) B")
+                guard play > 0, let s = try? String(contentsOf: url.deletingLastPathComponent().appendingPathComponent("script.json"), encoding: .utf8),
+                      case .array(let steps)? = (try? JSData(json: s))?["steps"] else { return }
+                while session.snapshot == nil && session.error == nil {
+                    try? await Task.sleep(nanoseconds: 10_000_000)
+                }
+                for step in steps.prefix(play) {
+                    if let ms = step["wait"]?.number {
+                        try? await Task.sleep(nanoseconds: UInt64(ms * 1_000_000))
+                        continue
+                    }
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    if let st = step["state"] {
+                        session.setState(st)
+                    } else if let d = step["dispatch"], let tag = d["tag"]?.number, let ev = d["name"]?.string {
+                        session.dispatch(tag: Int32(tag), name: ev, payload: d["payload"] ?? .null)
+                    }
+                    if let e = session.error { out("example \(name): \(e)"); return }
+                }
+                out("example \(name): played \(min(play, steps.count)) steps")
+            }
+            .onDisappear { session.unload() }
+    }
+}
+
+struct FixturesView: View {
     @StateObject private var session = SolidWatchSession(registry: Live.registry())
     @State private var report: [String] = []
     @State private var showReport = false
@@ -70,8 +174,13 @@ enum Fixtures {
 
     static var mutationNames: [String] { dirs.keys.sorted() }
 
-    /// Registers the schema font (Inter) bundled with the app.
+    /// Registers the schema font (Inter) bundled with the app, once.
+    @MainActor private static var fontRegistered = false
+
+    @MainActor
     static func registerFont(_ out: Out) {
+        if fontRegistered { return }
+        fontRegistered = true
         guard let url = Bundle.main.url(forResource: "Inter-roman", withExtension: "ttf") else {
             out("font: Inter-roman.ttf not bundled; using the system font")
             return
@@ -255,7 +364,7 @@ enum Live {
     static func run(_ name: String, _ session: SolidWatchSession, _ out: Out) async {
         guard let f = try? Fixtures.load(name) else { out("live: no fixture \(name)"); return }
         let all = states(f.script)
-        // Tune has ~100 states: show the first 20 live, once each.
+        // A long script: show its first 20 states live, once each.
         let states = Array(all.prefix(20))
         let fp0 = Mem.footprint()
         let t0 = ContinuousClock.now

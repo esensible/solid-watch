@@ -13,7 +13,7 @@
   "[\"createNode\",3,\"text\"]",
   "[\"setProp\",3,\"fontSize\",10]",
   "[\"setProp\",3,\"letterSpacing\",2]",
-  "[\"createText\",4,\"SOG\"]",
+  "[\"createText\",4,\"BPM\"]",
   "[\"insert\",3,4,0]",
   "[\"insert\",2,3,0]",
   "[\"createNode\",5,\"text\"]",

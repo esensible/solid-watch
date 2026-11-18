@@ -3,7 +3,8 @@
 #   QJS=/path/to/qjs test/all.sh
 # codegen up to date, test bundles rebuilt, fixtures regenerated (qjs and
 # node must agree), fixtures unchanged vs git when CHECK_CLEAN=1, unit tests,
-# import boundary.
+# import boundary, the examples (installed fresh: their solid-watch is a copy
+# of this package's files, taken at install), built and run.
 set -eu
 cd "$(dirname "$0")/.."
 node codegen/codegen.mjs --check
@@ -19,3 +20,4 @@ npx tsc -p test/types
 npx tsc -p test/types/tsconfig.fragment.json
 echo "types ok"
 node test/boundary.mjs
+(cd Examples/bundles && npm ci --no-audit --no-fund --loglevel=error && QJS="${QJS:-qjs}" npm test --silent)

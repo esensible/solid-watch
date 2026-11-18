@@ -6263,7 +6263,7 @@
     const [wifi, setWifi] = createSignal(true);
     const [alarm, setAlarm] = createSignal(false);
     const [target, setTarget] = createSignal(4);
-    const [heading, setHeading] = createSignal(0);
+    const [angle, setAngle] = createSignal(0);
     const Pill = props => (() => {
       var _el$ = createElement("button");
       setProp(_el$, "flexGrow", 1);
@@ -6533,7 +6533,7 @@
       insertNode(_el$26, _el$30);
       insertNode(_el$26, _el$31);
       insertNode(_el$26, _el$32);
-      insertNode(_el$28, createTextNode(`TARGET KN`));
+      insertNode(_el$28, createTextNode(`VOLUME`));
       insert(_el$30, () => target().toFixed(1));
       insert(_el$32, createComponent(Pill, {
         background: "gray5",
@@ -6655,7 +6655,7 @@
           max: 360,
           increment: 5,
           wrap: true,
-          onChange: setHeading
+          onChange: setAngle
         }),
         _el$51 = createElement("view", {
           flexDirection: "row",
@@ -6667,16 +6667,16 @@
           color: "red"
         }),
         _el$53 = createElement("icon", {
-          name: "wind",
+          name: "bolt.fill",
           size: 22,
           weight: "bold",
           color: "cyan"
         }),
         _el$54 = createElement("icon", {
-          name: "sailboat.fill",
+          name: "leaf.fill",
           size: 22,
           renderingMode: "hierarchical",
-          color: "blue"
+          color: "green"
         }),
         _el$55 = createElement("icon", {
           name: "sun.max.fill",
@@ -6747,10 +6747,10 @@
       insertNode(_el$58, _el$60);
       insertNode(_el$58, _el$61);
       insertNode(_el$58, _el$62);
-      insert(_el$61, () => `${heading()}°`);
+      insert(_el$61, () => `${angle()}°`);
       effect(() => ({
-        e: heading(),
-        t: heading()
+        e: angle(),
+        t: angle()
       }), ({
         e,
         t
@@ -6816,8 +6816,8 @@
       insertNode(_el$64, _el$69);
       insertNode(_el$64, _el$76);
       insertNode(_el$64, _el$78);
-      insertNode(_el$65, createTextNode(`SPEED OVER GROUND`));
-      insertNode(_el$67, createTextNode(`12.34`));
+      insertNode(_el$65, createTextNode(`STEPS TODAY`));
+      insertNode(_el$67, createTextNode(`8,412`));
       insertNode(_el$69, _el$70);
       insertNode(_el$69, _el$72);
       insertNode(_el$69, _el$74);
@@ -6877,7 +6877,7 @@
         });
       insertNode(_el$88, _el$89);
       insert(_el$89, createComponent(For, {
-        each: ["Start line", "Mark 1", "Mark 2", "Gate", "Finish", "Course", "Wind", "Log"],
+        each: ["Passport", "Charger", "Headphones", "Toothbrush", "Rain jacket", "Socks", "Book", "Snacks"],
         children: (label, i) => (() => {
           var _el$90 = createElement("view", {
               flexDirection: "row",
@@ -6889,7 +6889,7 @@
               background: "gray6"
             }),
             _el$91 = createElement("icon", {
-              name: "flag.fill",
+              name: "checkmark.circle.fill",
               size: 14
             }),
             _el$92 = createElement("text", {

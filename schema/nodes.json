@@ -184,7 +184,7 @@
       "groups": ["layout", "box"],
       "children": "none",
       "props": {
-        "name": { "kind": "paint", "type": "string", "default": null, "doc": "SF Symbol name, e.g. wind or heart.fill; null (or a name the watch lacks) draws nothing." },
+        "name": { "kind": "paint", "type": "string", "default": null, "doc": "SF Symbol name, e.g. star.fill or heart.fill; null (or a name the watch lacks) draws nothing." },
         "size": { "kind": "measure", "type": "number", "default": 24, "doc": "Point size of the symbol's font." },
         "color": { "kind": "paint", "type": "color", "default": "white" },
         "weight": { "kind": "paint", "type": "enum", "values": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"], "default": "normal", "swiftNames": { "100": "w100", "200": "w200", "300": "w300", "400": "w400", "500": "w500", "600": "w600", "700": "w700", "800": "w800", "900": "w900" }, "doc": "Stroke weight, as fontWeight." },
@@ -219,7 +219,7 @@
         "min": { "kind": "behavior", "type": "number", "default": null, "doc": "null = unbounded below." },
         "max": { "kind": "behavior", "type": "number", "default": null, "doc": "null = unbounded above." },
         "increment": { "kind": "behavior", "type": "number", "default": null, "doc": "Values are min (or 0) + a multiple of increment, with a detent click each; null = continuous." },
-        "wrap": { "kind": "behavior", "type": "boolean", "default": false, "doc": "With min and max: past max comes min again (a heading 0..360). Values are then in min..max, max excluded." },
+        "wrap": { "kind": "behavior", "type": "boolean", "default": false, "doc": "With min and max: past max comes min again (an angle 0..360). Values are then in min..max, max excluded." },
         "sensitivity": { "kind": "behavior", "type": "enum", "values": ["low", "medium", "high"], "default": "medium", "doc": "How far a turn moves the value (watchOS DigitalCrownRotationalSensitivity)." },
         "onChange": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with the new value (a number)." }
       }

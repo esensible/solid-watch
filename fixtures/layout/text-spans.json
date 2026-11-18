@@ -16,7 +16,7 @@
   "[\"insert\",3,4,0]",
   "[\"createNode\",5,\"text\"]",
   "[\"setProp\",5,\"fontSize\",12]",
-  "[\"createText\",6,\"kn\"]",
+  "[\"createText\",6,\"km\"]",
   "[\"insert\",5,6,0]",
   "[\"insert\",3,5,0]",
   "[\"createText\",7,\" now\"]",

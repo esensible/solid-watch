@@ -923,7 +923,7 @@ public enum IconRenderingMode: String, CaseIterable, Sendable {
 
 /// `icon`'s own props.
 public struct IconProps: Equatable, Sendable {
-  /// SF Symbol name, e.g. wind or heart.fill; null (or a name the watch lacks) draws nothing.
+  /// SF Symbol name, e.g. star.fill or heart.fill; null (or a name the watch lacks) draws nothing.
   public var name: String? = nil
   /// Point size of the symbol's font.
   public var size: Double = 24
@@ -1070,7 +1070,7 @@ public struct CrownProps: Equatable, Sendable {
   public var max: Double? = nil
   /// Values are min (or 0) + a multiple of increment, with a detent click each; null = continuous.
   public var increment: Double? = nil
-  /// With min and max: past max comes min again (a heading 0..360). Values are then in min..max, max excluded.
+  /// With min and max: past max comes min again (an angle 0..360). Values are then in min..max, max excluded.
   public var wrap: Bool = false
   /// How far a turn moves the value (watchOS DigitalCrownRotationalSensitivity).
   public var sensitivity: CrownSensitivity = .medium

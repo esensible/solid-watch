@@ -7,9 +7,9 @@
 # export fast-forwards the public branch it was taken from. Nothing is ever edited there.
 #
 # Run it from projects/solid-watch in a monorepo dev container that has git, node (>= 20), npm,
-# a C compiler and make (for qjs) and ssh (for a push): the hilux one does, and it mounts the
-# whole repository (at /workspace) and the host's ~/.ssh. E.g. from the monorepo root:
-# .devcontainer/dc exec hilux -- sh /workspace/projects/solid-watch/tools/publish.sh
+# a C compiler and make (for qjs) and ssh (for a push), and that mounts the whole repository
+# (at /workspace) and the host's ~/.ssh. E.g. from the monorepo root:
+# .devcontainer/dc exec <container> -- sh /workspace/projects/solid-watch/tools/publish.sh
 #
 #   sh tools/publish.sh                   split HEAD, check the split stands alone (below), show
 #                                         what an export would push (and whether it
@@ -63,7 +63,7 @@ esac
 
 for tool in git node npm cc make; do
     if ! command -v "$tool" > /dev/null; then
-        echo "publish: no $tool here: run this in a dev container that has it (hilux)" >&2
+        echo "publish: no $tool here: run this in a dev container that has it" >&2
         exit 1
     fi
 done

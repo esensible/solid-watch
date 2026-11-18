@@ -682,7 +682,7 @@ export const schema = {
           "kind": "paint",
           "type": "string",
           "default": null,
-          "doc": "SF Symbol name, e.g. wind or heart.fill; null (or a name the watch lacks) draws nothing."
+          "doc": "SF Symbol name, e.g. star.fill or heart.fill; null (or a name the watch lacks) draws nothing."
         },
         "size": {
           "kind": "measure",
@@ -832,7 +832,7 @@ export const schema = {
           "kind": "behavior",
           "type": "boolean",
           "default": false,
-          "doc": "With min and max: past max comes min again (a heading 0..360). Values are then in min..max, max excluded."
+          "doc": "With min and max: past max comes min again (an angle 0..360). Values are then in min..max, max excluded."
         },
         "sensitivity": {
           "kind": "behavior",

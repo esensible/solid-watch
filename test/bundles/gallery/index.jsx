@@ -18,7 +18,7 @@ const [segment, setSegment] = createSignal(1);
 const [wifi, setWifi] = createSignal(true);
 const [alarm, setAlarm] = createSignal(false);
 const [target, setTarget] = createSignal(4);
-const [heading, setHeading] = createSignal(0);
+const [angle, setAngle] = createSignal(0);
 
 const Pill = (props) => (
   <button flexGrow={1} flexBasis={0} height={34} alignItems="center" justifyContent="center" {...props} />
@@ -97,7 +97,7 @@ function Crown() {
   return (
     <view alignItems="center" gap={6}>
       <crown value={target()} min={0} max={10} increment={0.5} sensitivity="low" onChange={setTarget} />
-      <text fontSize={13} color="gray" letterSpacing={1.5}>TARGET KN</text>
+      <text fontSize={13} color="gray" letterSpacing={1.5}>VOLUME</text>
       <text fontSize={52} fontWeight="700" tabular>{target().toFixed(1)}</text>
       <progress alignSelf="stretch" height={8} value={target() / 10} color="green" />
       <view flexDirection="row" gap={5} alignSelf="stretch">
@@ -130,13 +130,13 @@ function Progress() {
 function Icons() {
   return (
     <view gap={6}>
-      <crown value={heading()} min={0} max={360} increment={5} wrap onChange={setHeading} />
+      <crown value={angle()} min={0} max={360} increment={5} wrap onChange={setAngle} />
       <view flexDirection="row" justifyContent="space-between" alignItems="center">
         <icon name="heart.fill" color="red" />
-        <icon name="wind" size={22} weight="bold" color="cyan" />
-        <icon name="sailboat.fill" size={22} renderingMode="hierarchical" color="blue" />
+        <icon name="bolt.fill" size={22} weight="bold" color="cyan" />
+        <icon name="leaf.fill" size={22} renderingMode="hierarchical" color="green" />
         <icon name="sun.max.fill" size={22} renderingMode="multicolor" />
-        <icon name="location.north.fill" size={22} color="orange" rotate={heading()} />
+        <icon name="location.north.fill" size={22} color="orange" rotate={angle()} />
       </view>
       <view flexDirection="row" justifyContent="space-between">
         <For each={["cover", "contain", "stretch", "center"]}>
@@ -148,7 +148,7 @@ function Icons() {
       <view flexDirection="row" gap={8} alignItems="center">
         <image source={ARROW} tintColor="mint" width={24} height={24} resizeMode="contain" />
         <view width={24} height={24} background="purple" borderRadius={4} rotate={45} scale={0.8} />
-        <text fontSize={14} tabular>{`${heading()}°`}</text>
+        <text fontSize={14} tabular>{`${angle()}°`}</text>
         <image source="data:image/svg+xml;base64,PHN2Zy8+" width={20} height={20} borderWidth={1} borderColor="gray3" />
       </view>
     </view>
@@ -158,8 +158,8 @@ function Icons() {
 function Text() {
   return (
     <view gap={3}>
-      <text fontSize={11} color="gray" letterSpacing={2}>SPEED OVER GROUND</text>
-      <text fontSize={44} fontWeight="800" tabular minScale={0.5}>12.34</text>
+      <text fontSize={11} color="gray" letterSpacing={2}>STEPS TODAY</text>
+      <text fontSize={44} fontWeight="800" tabular minScale={0.5}>8,412</text>
       <view flexDirection="row" alignItems="baseline" gap={4}>
         <text fontSize={19} fontWeight="300">light</text>
         <text fontSize={19} fontWeight="500">medium</text>
@@ -192,10 +192,10 @@ function List() {
   return (
     <scroll flexGrow={1} showsVerticalScrollIndicator>
       <view gap={4}>
-        <For each={["Start line", "Mark 1", "Mark 2", "Gate", "Finish", "Course", "Wind", "Log"]}>
+        <For each={["Passport", "Charger", "Headphones", "Toothbrush", "Rain jacket", "Socks", "Book", "Snacks"]}>
           {(label, i) => (
             <view flexDirection="row" alignItems="center" gap={8} height={36} paddingHorizontal={10} borderRadius={10} background="gray6">
-              <icon name="flag.fill" size={14} color={i() % 2 ? "orange" : "green"} />
+              <icon name="checkmark.circle.fill" size={14} color={i() % 2 ? "orange" : "green"} />
               <text flexGrow={1} flexShrink={1} numberOfLines={1}>{label}</text>
               <text fontSize={13} color="gray" tabular>{String(i() + 1)}</text>
             </view>
