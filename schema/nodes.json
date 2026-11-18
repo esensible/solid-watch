@@ -1,0 +1,228 @@
+{
+  "schemaVersion": 1,
+  "name": "core",
+  "version": 3,
+  "doc": "solid-watch core node types. Layout props use React Native / Yoga names and React Native defaults. A prop's `kind` tells the host what a change invalidates: layout (Yoga style), measure (re-measure a leaf: dirty its Yoga node), paint (redraw only), behavior (host behaviour, no layout), event (a JS handler: the host only learns whether one is set). `version` is the contract version (README: Contract version): hosts expose it as `__host.version`, bundles read it with `hostVersion()`.",
+  "font": {
+    "doc": "The one font both hosts measure and draw with (fonts/, SIL OFL 1.1). Its hhea, typo and win metrics agree (ascent 2728, descent 680, gap 0, 2816 units/em), so the default line height is fontSize x 3408/2816 everywhere. fontWeight drives the wght axis (100-900).",
+    "family": "Inter",
+    "file": "fonts/Inter-roman.ttf",
+    "version": "3.19",
+    "unitsPerEm": 2816,
+    "ascent": 2728,
+    "descent": 680,
+    "lineHeightRatio": 1.2102272727272727
+  },
+  "colors": {
+    "white": "#FFFFFF",
+    "black": "#000000",
+    "transparent": "#00000000",
+    "red": "#FF453A",
+    "orange": "#FF9F0A",
+    "yellow": "#FFD60A",
+    "green": "#30D158",
+    "mint": "#63E6E2",
+    "teal": "#40CBE0",
+    "cyan": "#64D2FF",
+    "blue": "#0A84FF",
+    "indigo": "#5E5CE6",
+    "purple": "#BF5AF2",
+    "pink": "#FF375F",
+    "brown": "#AC8E68",
+    "gray": "#8E8E93",
+    "gray2": "#636366",
+    "gray3": "#48484A",
+    "gray4": "#3A3A3C",
+    "gray5": "#2C2C2E",
+    "gray6": "#1C1C1E"
+  },
+  "groups": {
+    "layout": {
+      "doc": "Yoga style. Defaults are Yoga's own (non-web) defaults, which are React Native's.",
+      "props": {
+        "display": { "kind": "layout", "type": "enum", "values": ["flex", "none"], "default": "flex" },
+        "position": { "kind": "layout", "type": "enum", "values": ["relative", "absolute"], "default": "relative" },
+        "top": { "kind": "layout", "type": "dimension", "default": null },
+        "right": { "kind": "layout", "type": "dimension", "default": null },
+        "bottom": { "kind": "layout", "type": "dimension", "default": null },
+        "left": { "kind": "layout", "type": "dimension", "default": null },
+        "width": { "kind": "layout", "type": "dimension", "auto": true, "default": "auto" },
+        "height": { "kind": "layout", "type": "dimension", "auto": true, "default": "auto" },
+        "minWidth": { "kind": "layout", "type": "dimension", "default": null },
+        "minHeight": { "kind": "layout", "type": "dimension", "default": null },
+        "maxWidth": { "kind": "layout", "type": "dimension", "default": null },
+        "maxHeight": { "kind": "layout", "type": "dimension", "default": null },
+        "aspectRatio": { "kind": "layout", "type": "number", "default": null },
+        "flex": { "kind": "layout", "type": "number", "default": null, "doc": "Yoga's `flex` shorthand (React Native semantics)." },
+        "flexGrow": { "kind": "layout", "type": "number", "default": 0 },
+        "flexShrink": { "kind": "layout", "type": "number", "default": 0 },
+        "flexBasis": { "kind": "layout", "type": "dimension", "auto": true, "default": "auto" },
+        "flexDirection": { "kind": "layout", "type": "enum", "values": ["column", "row", "column-reverse", "row-reverse"], "default": "column" },
+        "flexWrap": { "kind": "layout", "type": "enum", "values": ["nowrap", "wrap", "wrap-reverse"], "default": "nowrap" },
+        "justifyContent": { "kind": "layout", "type": "enum", "values": ["flex-start", "center", "flex-end", "space-between", "space-around", "space-evenly"], "default": "flex-start" },
+        "alignItems": { "kind": "layout", "type": "enum", "values": ["flex-start", "center", "flex-end", "stretch", "baseline"], "default": "stretch" },
+        "alignSelf": { "kind": "layout", "type": "enum", "values": ["auto", "flex-start", "center", "flex-end", "stretch", "baseline"], "default": "auto" },
+        "alignContent": { "kind": "layout", "type": "enum", "values": ["flex-start", "center", "flex-end", "stretch", "space-between", "space-around", "space-evenly"], "default": "flex-start" },
+        "margin": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginHorizontal": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginVertical": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginTop": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginRight": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginBottom": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "marginLeft": { "kind": "layout", "type": "dimension", "auto": true, "default": null },
+        "padding": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingHorizontal": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingVertical": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingTop": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingRight": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingBottom": { "kind": "layout", "type": "dimension", "default": null },
+        "paddingLeft": { "kind": "layout", "type": "dimension", "default": null },
+        "borderWidth": { "kind": "layout", "type": "number", "default": 0 },
+        "gap": { "kind": "layout", "type": "number", "default": null },
+        "rowGap": { "kind": "layout", "type": "number", "default": null },
+        "columnGap": { "kind": "layout", "type": "number", "default": null },
+        "overflow": { "kind": "layout", "type": "enum", "values": ["visible", "hidden", "scroll"], "default": "visible", "doc": "hidden also clips children when drawing." },
+        "boxSizing": { "kind": "layout", "type": "enum", "values": ["border-box", "content-box"], "default": "border-box" }
+      }
+    },
+    "box": {
+      "doc": "Paint for any visible node. None of it changes layout: frames are Yoga's.",
+      "props": {
+        "background": { "kind": "paint", "type": "color", "default": null },
+        "borderColor": { "kind": "paint", "type": "color", "default": null },
+        "borderRadius": { "kind": "paint", "type": "number", "default": 0, "doc": "Points, continuous corners. A radius past half the shorter side is drawn as half of it: 999 makes a capsule (or a circle of a square)." },
+        "borderTopLeftRadius": { "kind": "paint", "type": "number", "default": null, "doc": "This corner's radius; null = borderRadius." },
+        "borderTopRightRadius": { "kind": "paint", "type": "number", "default": null, "doc": "This corner's radius; null = borderRadius." },
+        "borderBottomRightRadius": { "kind": "paint", "type": "number", "default": null, "doc": "This corner's radius; null = borderRadius." },
+        "borderBottomLeftRadius": { "kind": "paint", "type": "number", "default": null, "doc": "This corner's radius; null = borderRadius." },
+        "opacity": { "kind": "paint", "type": "number", "default": 1 },
+        "rotate": { "kind": "paint", "type": "number", "default": 0, "doc": "Degrees clockwise about the node's centre, drawing only (CSS `rotate`): the frame and the layout around it are unrotated." },
+        "scale": { "kind": "paint", "type": "number", "default": 1, "doc": "Drawn scale about the node's centre, drawing only (CSS `scale`)." }
+      }
+    },
+    "textStyle": {
+      "doc": "Text style. Inherited: a nested <text> (a span) takes its parent's value unless it sets its own.",
+      "props": {
+        "color": { "kind": "paint", "type": "color", "default": "white", "inherit": true },
+        "fontSize": { "kind": "measure", "type": "number", "default": 16, "inherit": true },
+        "fontWeight": { "kind": "measure", "type": "enum", "values": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"], "default": "normal", "inherit": true, "swiftNames": { "100": "w100", "200": "w200", "300": "w300", "400": "w400", "500": "w500", "600": "w600", "700": "w700", "800": "w800", "900": "w900" }, "doc": "normal = 400, bold = 700; drawn on the font's wght axis." },
+        "tabular": { "kind": "measure", "type": "boolean", "default": false, "inherit": true, "doc": "Tabular (fixed-width) figures: OpenType tnum." },
+        "lineHeight": { "kind": "measure", "type": "number", "default": null, "inherit": true, "doc": "Points; null = fontSize x the font's line-height ratio." },
+        "letterSpacing": { "kind": "measure", "type": "number", "default": 0, "inherit": true, "doc": "Points added after every character (CSS letter-spacing, Core Text kern), scaled with the text by minScale." },
+        "textAlign": { "kind": "paint", "type": "enum", "values": ["left", "center", "right"], "default": "left", "inherit": true }
+      }
+    },
+    "textLayout": {
+      "doc": "Measurement of a text leaf (the outermost <text>). Ignored on spans.",
+      "props": {
+        "numberOfLines": { "kind": "measure", "type": "number", "default": 0, "doc": "0 = no limit. Lines past the limit are cut with a tail ellipsis." },
+        "minScale": { "kind": "measure", "type": "number", "default": 1, "doc": "< 1 makes the text single-line and shrinks it to fit its width, down to fontSize x minScale (README: Shrink-to-fit)." }
+      }
+    }
+  },
+  "nodes": {
+    "view": {
+      "doc": "A box: flex container.",
+      "groups": ["layout", "box"],
+      "children": "nodes"
+    },
+    "text": {
+      "doc": "Text. Raw strings are only valid inside <text>. A <text> inside a <text> is a span: it styles a run of the outer text and has no layout of its own.",
+      "groups": ["layout", "box", "textStyle", "textLayout"],
+      "children": "text"
+    },
+    "scroll": {
+      "doc": "Vertical scroll container (Digital Crown on the watch, unless a <crown> is attached). The host always gives its Yoga node overflow: scroll (its `overflow` prop is ignored), so children are not shrunk to its height. Content height = the largest child bottom edge (frame y + height + marginBottom) plus paddingBottom + borderWidth; it scrolls when that exceeds its own height. It clips.",
+      "groups": ["layout", "box"],
+      "children": "nodes",
+      "props": {
+        "showsVerticalScrollIndicator": { "kind": "behavior", "type": "boolean", "default": false, "doc": "Show the system scroll indicator while scrolling (React Native's name; its default is true, the watch's is false)." }
+      }
+    },
+    "button": {
+      "doc": "Tappable box. On a tap the host dispatches `press` to JS if `onPress` is set. While pressed its content is drawn at pressedOpacity, the whole button at pressedScale and on pressedBackground; a disabled button's content at opacity x 0.35 (README: Behaviour).",
+      "groups": ["layout", "box"],
+      "children": "nodes",
+      "props": {
+        "onPress": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with no payload (null)." },
+        "onLongPress": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with no payload (null) once the button has been held for 0.5 s; the release that ends that hold does not press." },
+        "onPressIn": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with no payload (null) when a touch goes down on the button (not disabled). Every pressIn is followed by exactly one pressOut." },
+        "onPressOut": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with no payload (null) when the touch that pressed the button ends: lifted, slid off, cancelled (a scroll took it, the system took the touch), the button disabled, or the button gone from the screen (README: Behaviour)." },
+        "disabled": { "kind": "behavior", "type": "boolean", "default": false },
+        "pressedOpacity": { "kind": "paint", "type": "number", "default": 0.6, "doc": "Opacity of the content while pressed (1 = no dimming)." },
+        "pressedScale": { "kind": "paint", "type": "number", "default": 1, "doc": "Drawn scale of the whole button while pressed, e.g. 0.95." },
+        "pressedBackground": { "kind": "paint", "type": "color", "default": null, "doc": "Background while pressed; null = background." }
+      }
+    },
+    "toggle": {
+      "doc": "An on/off switch, controlled: it draws `value` and a tap dispatches `change` with !value (if onChange is set and it is not disabled); the app sets value. A leaf, 40 x 24 unless sized: a capsule track (activeTrackColor or inactiveTrackColor) and a round knob (thumbColor), its diameter the content height - 4. Not tappable without onChange, so it can sit inside a <button> whose press flips the value.",
+      "groups": ["layout", "box"],
+      "children": "none",
+      "props": {
+        "value": { "kind": "paint", "type": "boolean", "default": false },
+        "onChange": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with the new value (a boolean)." },
+        "disabled": { "kind": "behavior", "type": "boolean", "default": false, "doc": "Ignores taps; drawn at opacity x 0.35." },
+        "activeTrackColor": { "kind": "paint", "type": "color", "default": "green", "doc": "Track when on." },
+        "inactiveTrackColor": { "kind": "paint", "type": "color", "default": "gray4", "doc": "Track when off." },
+        "thumbColor": { "kind": "paint", "type": "color", "default": "white", "doc": "The knob." }
+      }
+    },
+    "progress": {
+      "doc": "A progress bar, ring or open arc filled to `value` (0..1, clamped), drawn in its content box behind its children (a ring's label goes inside it). bar: a capsule filling the content box, filled from the left (from the bottom when taller than wide). ring: a circle in the largest centred square, filled clockwise from 12 o'clock. arc: 270 degrees of that circle, open at the bottom, filled clockwise from its lower left end. Ring and arc are stroked `thickness` points wide inside the square, with round ends. No natural size: give it a size (or stretch it).",
+      "groups": ["layout", "box"],
+      "children": "nodes",
+      "props": {
+        "value": { "kind": "paint", "type": "number", "default": 0 },
+        "shape": { "kind": "paint", "type": "enum", "values": ["bar", "ring", "arc"], "default": "bar" },
+        "color": { "kind": "paint", "type": "color", "default": "white", "doc": "The filled part." },
+        "trackColor": { "kind": "paint", "type": "color", "default": "#FFFFFF33", "doc": "The unfilled part." },
+        "thickness": { "kind": "paint", "type": "number", "default": 4, "doc": "ring and arc: stroke width in points." }
+      }
+    },
+    "icon": {
+      "doc": "An SF Symbol by name, drawn at `size` points (a font size, as text) centred in its content box, unclipped. A leaf whose natural size is size x size. The browser host has no SF Symbols: it lays the icon out the same and draws a placeholder.",
+      "groups": ["layout", "box"],
+      "children": "none",
+      "props": {
+        "name": { "kind": "paint", "type": "string", "default": null, "doc": "SF Symbol name, e.g. wind or heart.fill; null (or a name the watch lacks) draws nothing." },
+        "size": { "kind": "measure", "type": "number", "default": 24, "doc": "Point size of the symbol's font." },
+        "color": { "kind": "paint", "type": "color", "default": "white" },
+        "weight": { "kind": "paint", "type": "enum", "values": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"], "default": "normal", "swiftNames": { "100": "w100", "200": "w200", "300": "w300", "400": "w400", "500": "w500", "600": "w600", "700": "w700", "800": "w800", "900": "w900" }, "doc": "Stroke weight, as fontWeight." },
+        "renderingMode": { "kind": "paint", "type": "enum", "values": ["monochrome", "hierarchical", "multicolor"], "default": "monochrome", "doc": "monochrome: all in color; hierarchical: color with lighter secondary layers; multicolor: the symbol's own colours." }
+      }
+    },
+    "image": {
+      "doc": "A PNG or JPEG image from a data URL (data:image/png;base64,... or data:image/jpeg;base64,...: what an image import gives a bundle), drawn into its content box and clipped to it. No natural size: give it width and height (or one and aspectRatio). Anything else (SVG, GIF, a URL) draws nothing.",
+      "groups": ["layout", "box"],
+      "children": "none",
+      "props": {
+        "source": { "kind": "paint", "type": "string", "default": null },
+        "resizeMode": { "kind": "paint", "type": "enum", "values": ["cover", "contain", "stretch", "center"], "default": "cover", "doc": "React Native's: cover fills the box (cropping), contain fits inside it, stretch fills it unevenly, center is contain without enlarging; an image's own size is its pixel size / 2 points." },
+        "tintColor": { "kind": "paint", "type": "color", "default": null, "doc": "Draw the image's alpha as a mask in this colour (a template image); null = its own colours." }
+      }
+    },
+    "haptic": {
+      "doc": "Non-visual: plays `pattern` at each commit where `trigger` differs from its value at the previous commit. The value it is created with does not play; null never plays. No layout.",
+      "groups": [],
+      "children": "none",
+      "props": {
+        "pattern": { "kind": "behavior", "type": "enum", "values": ["notification", "directionUp", "directionDown", "success", "failure", "retry", "start", "stop", "click"], "default": "click", "doc": "watchOS WKHapticType names." },
+        "trigger": { "kind": "behavior", "type": "any", "default": null }
+      }
+    },
+    "crown": {
+      "doc": "Non-visual: binds the Digital Crown (the browser host: the mouse wheel over the screen) to a number, controlled: turning it dispatches `change` with the new value (snapped to increment, kept in min..max or wrapped) whenever that differs from the last one sent; the app sets value. While one is attached the crown drives it, not scroll views; with several, the last in tree order. No layout.",
+      "groups": [],
+      "children": "none",
+      "props": {
+        "value": { "kind": "behavior", "type": "number", "default": 0 },
+        "min": { "kind": "behavior", "type": "number", "default": null, "doc": "null = unbounded below." },
+        "max": { "kind": "behavior", "type": "number", "default": null, "doc": "null = unbounded above." },
+        "increment": { "kind": "behavior", "type": "number", "default": null, "doc": "Values are min (or 0) + a multiple of increment, with a detent click each; null = continuous." },
+        "wrap": { "kind": "behavior", "type": "boolean", "default": false, "doc": "With min and max: past max comes min again (a heading 0..360). Values are then in min..max, max excluded." },
+        "sensitivity": { "kind": "behavior", "type": "enum", "values": ["low", "medium", "high"], "default": "medium", "doc": "How far a turn moves the value (watchOS DigitalCrownRotationalSensitivity)." },
+        "onChange": { "kind": "event", "type": "event", "default": null, "doc": "JS handler, called with the new value (a number)." }
+      }
+    }
+  }
+}

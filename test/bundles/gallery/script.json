@@ -1,0 +1,20 @@
+{
+  "ctx": { "width": 198, "height": 242 },
+  "steps": [
+    { "state": { "page": 0 } },
+    { "dispatch": { "tag": 14, "name": "press", "payload": null } },
+    { "dispatch": { "tag": 11, "name": "longPress", "payload": null } },
+    { "dispatch": { "tag": 33, "name": "press", "payload": null } },
+    { "state": { "page": 1 } },
+    { "dispatch": { "tag": 44, "name": "press", "payload": null } },
+    { "dispatch": { "tag": 41, "name": "change", "payload": true } },
+    { "state": { "page": 2 } },
+    { "dispatch": { "tag": 53, "name": "change", "payload": 6.5 } },
+    { "state": { "page": 3 } },
+    { "state": { "page": 4 } },
+    { "dispatch": { "tag": 79, "name": "change", "payload": 45 } },
+    { "state": { "page": 5 } },
+    { "state": { "page": 6 } },
+    { "state": { "page": 7 } }
+  ]
+}

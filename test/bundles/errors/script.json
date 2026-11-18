@@ -1,0 +1,8 @@
+{
+  "ctx": { "width": 198, "height": 242 },
+  "steps": [
+    { "dispatch": { "tag": 3, "name": "press" } },
+    { "dispatch": { "tag": 3, "name": "press" } },
+    { "state": { "n": 0 } }
+  ]
+}

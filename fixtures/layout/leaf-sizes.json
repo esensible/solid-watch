@@ -1,0 +1,89 @@
+{
+ "name": "leaf-sizes",
+ "viewport": {
+  "width": 198,
+  "height": 242
+ },
+ "pointScaleFactor": 2,
+ "measure": "stub",
+ "log": [
+  "[\"#mount\",1,{\"width\":198,\"height\":242}]",
+  "[\"createNode\",2,\"view\"]",
+  "[\"setProp\",2,\"flexDirection\",\"row\"]",
+  "[\"setProp\",2,\"alignItems\",\"flex-start\"]",
+  "[\"setProp\",2,\"gap\",4]",
+  "[\"setProp\",2,\"padding\",2]",
+  "[\"createNode\",3,\"icon\"]",
+  "[\"setProp\",3,\"name\",\"wind\"]",
+  "[\"insert\",2,3,0]",
+  "[\"createNode\",4,\"icon\"]",
+  "[\"setProp\",4,\"name\",\"wind\"]",
+  "[\"setProp\",4,\"size\",30]",
+  "[\"setProp\",4,\"padding\",3]",
+  "[\"insert\",2,4,0]",
+  "[\"createNode\",5,\"toggle\"]",
+  "[\"setProp\",5,\"value\",true]",
+  "[\"insert\",2,5,0]",
+  "[\"createNode\",6,\"toggle\"]",
+  "[\"setProp\",6,\"width\",52]",
+  "[\"setProp\",6,\"height\",30]",
+  "[\"insert\",2,6,0]",
+  "[\"createNode\",7,\"image\"]",
+  "[\"setProp\",7,\"width\",20]",
+  "[\"setProp\",7,\"aspectRatio\",2]",
+  "[\"insert\",2,7,0]",
+  "[\"createNode\",8,\"crown\"]",
+  "[\"setProp\",8,\"value\",1]",
+  "[\"insert\",2,8,0]",
+  "[\"insert\",1,2,0]",
+  "[\"commit\"]"
+ ],
+ "expected": {
+  "frames": {
+   "1": [
+    0,
+    0,
+    198,
+    242
+   ],
+   "2": [
+    0,
+    0,
+    198,
+    40
+   ],
+   "3": [
+    2,
+    2,
+    24,
+    24
+   ],
+   "4": [
+    30,
+    2,
+    36,
+    36
+   ],
+   "5": [
+    70,
+    2,
+    40,
+    24
+   ],
+   "6": [
+    114,
+    2,
+    52,
+    30
+   ],
+   "7": [
+    170,
+    2,
+    20,
+    10
+   ]
+  },
+  "text": {},
+  "content": {}
+ }
+}

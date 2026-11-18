@@ -1,0 +1,115 @@
+{
+ "name": "text-letter-spacing",
+ "viewport": {
+  "width": 176,
+  "height": 215
+ },
+ "pointScaleFactor": 2,
+ "measure": "stub",
+ "log": [
+  "[\"#mount\",1,{\"width\":176,\"height\":215}]",
+  "[\"createNode\",2,\"view\"]",
+  "[\"setProp\",2,\"alignItems\",\"flex-start\"]",
+  "[\"createNode\",3,\"text\"]",
+  "[\"setProp\",3,\"fontSize\",10]",
+  "[\"setProp\",3,\"letterSpacing\",2]",
+  "[\"createText\",4,\"SOG\"]",
+  "[\"insert\",3,4,0]",
+  "[\"insert\",2,3,0]",
+  "[\"createNode\",5,\"text\"]",
+  "[\"setProp\",5,\"fontSize\",40]",
+  "[\"setProp\",5,\"minScale\",0.5]",
+  "[\"setProp\",5,\"letterSpacing\",4]",
+  "[\"createText\",6,\"12345678\"]",
+  "[\"insert\",5,6,0]",
+  "[\"insert\",2,5,0]",
+  "[\"createNode\",7,\"text\"]",
+  "[\"setProp\",7,\"fontSize\",10]",
+  "[\"createText\",8,\"a\"]",
+  "[\"insert\",7,8,0]",
+  "[\"createNode\",9,\"text\"]",
+  "[\"setProp\",9,\"letterSpacing\",5]",
+  "[\"createText\",10,\"bc\"]",
+  "[\"insert\",9,10,0]",
+  "[\"insert\",7,9,0]",
+  "[\"createText\",11,\"d\"]",
+  "[\"insert\",7,11,0]",
+  "[\"insert\",2,7,0]",
+  "[\"createNode\",12,\"view\"]",
+  "[\"setProp\",12,\"width\",60]",
+  "[\"createNode\",13,\"text\"]",
+  "[\"setProp\",13,\"fontSize\",10]",
+  "[\"setProp\",13,\"letterSpacing\",4]",
+  "[\"createText\",14,\"wrap me please\"]",
+  "[\"insert\",13,14,0]",
+  "[\"insert\",12,13,0]",
+  "[\"insert\",2,12,0]",
+  "[\"insert\",1,2,0]",
+  "[\"commit\"]"
+ ],
+ "expected": {
+  "frames": {
+   "1": [
+    0,
+    0,
+    176,
+    215
+   ],
+   "2": [
+    0,
+    0,
+    176,
+    101.5
+   ],
+   "3": [
+    0,
+    0,
+    24,
+    12.5
+   ],
+   "5": [
+    0,
+    12.5,
+    174,
+    39
+   ],
+   "7": [
+    0,
+    51,
+    34,
+    12.5
+   ],
+   "12": [
+    0,
+    64,
+    60,
+    37.5
+   ],
+   "13": [
+    0,
+    0,
+    60,
+    37.5
+   ]
+  },
+  "text": {
+   "3": {
+    "fontSize": 10,
+    "lines": 1
+   },
+   "5": {
+    "fontSize": 31,
+    "lines": 1
+   },
+   "7": {
+    "fontSize": 10,
+    "lines": 1
+   },
+   "13": {
+    "fontSize": 10,
+    "lines": 3
+   }
+  },
+  "content": {}
+ }
+}

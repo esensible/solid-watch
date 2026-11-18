@@ -1,0 +1,13 @@
+{
+  "ctx": { "width": 198, "height": 242 },
+  "steps": [
+    { "state": { "armed": true } },
+    { "dispatch": { "tag": 3, "name": "press", "payload": null } },
+    { "dispatch": { "tag": 3, "name": "press", "payload": { "big": true } } },
+    { "dispatch": { "tag": 999, "name": "press", "payload": null } },
+    { "state": { "armed": false } },
+    { "state": { "armed": false } },
+    { "dispatch": { "tag": 3, "name": "press", "payload": null } },
+    { "state": { "armed": true } }
+  ]
+}
