@@ -1,16 +1,28 @@
 // Stopwatch: Start/Stop and Lap buttons, the elapsed time in tabular figures,
-// a scrolling list of laps (newest first), and a long press on the time to
-// reset it.
+// a scrolling list of laps (newest first, the newest lit for a moment), and a
+// long press on the time to reset it. A reset first hands the session over
+// (a stand-in for sending it to a phone: a timer that settles after 400 ms),
+// and only then clears the time and the laps.
 //
-// What it shows of the API:
-// - time is the bundle's own business: Date.now() is the host's clock and
-//   setInterval runs on the host's timers, so the bundle keeps its own state
-//   (when it started, what it had banked) and only re-renders on a tick;
-// - createEffect(compute, apply) (Solid 2): the interval exists only while
-//   running() is true; the apply half's return value is its cleanup;
-// - a <button> is any box with an onPress (and onLongPress), styled with box
-//   props; a <haptic> plays when its trigger changes.
-import { createSignal, createMemo, createEffect, For } from "solid-js";
+// Time is the bundle's own business: Date.now() is the host's clock and
+// setInterval runs on the host's timers, so the bundle keeps its own state
+// (when it started, what it had banked) and re-renders on a tick.
+//
+// Solid 2 features it shows:
+// - createEffect(compute, apply): the interval exists only while running()
+//   is true; the apply half's return value is its cleanup;
+// - onCleanup: each lap row's own timer (the highlight) is cleared when the
+//   row goes away, e.g. by a reset before it fired;
+// - action(function* …) as the transition (Solid 2 has no startTransition):
+//   the reset's writes are held until the hand-off it yields settles, so
+//   the old laps stay on screen and are replaced in one update, never
+//   flashing an empty list;
+// - createOptimistic(false): the readout says "saving laps…" (and the
+//   buttons are disabled) while that transition is pending;
+// - <For> with a fallback for the empty list.
+// Watch nodes: a <button> is any box with an onPress (and onLongPress),
+// styled with box props; a <haptic> plays when its trigger changes.
+import { createSignal, createMemo, createEffect, createOptimistic, action, onCleanup, For } from "solid-js";
 import { createApp } from "solid-watch";
 
 const [running, setRunning] = createSignal(false);
@@ -18,6 +30,7 @@ const [startedAt, setStartedAt] = createSignal(0); // Date.now() when last start
 const [banked, setBanked] = createSignal(0); // ms accumulated before that start
 const [now, setNow] = createSignal(Date.now());
 const [laps, setLaps] = createSignal([]); // [{ n, split, total }], newest first
+const [resetting, setResetting] = createOptimistic(false);
 
 // Elapsed ms: what was banked, plus the current run while running.
 const elapsed = createMemo(() => banked() + (running() ? now() - startedAt() : 0));
@@ -59,11 +72,14 @@ function lap() {
   setLaps([{ n: laps().length + 1, split: total - prev, total }, ...laps()]);
 }
 
-function reset() {
-  if (running()) return; // stop first: a reset while running would be a surprise
-  setBanked(0);
+const handOver = () => new Promise((ok) => setTimeout(ok, 400));
+
+const reset = action(function* () {
+  setResetting(true); // shows now, reverts by itself when the action is done
+  setBanked(0); // these two are held with the action...
   setLaps([]);
-}
+  yield handOver(); // ...until this settles: then they land together
+});
 
 // One component for both round buttons: a tinted capsule with a label. (Its
 // props are passed one by one, not spread: every prop that reaches a node
@@ -75,22 +91,38 @@ const RoundButton = (props) => (
   </button>
 );
 
+function LapRow(props) {
+  // Lit for 1.5 s after it is added. The timer belongs to this row: if the
+  // row is removed first, onCleanup clears it.
+  const [fresh, setFresh] = createSignal(true);
+  const id = setTimeout(() => setFresh(false), 1500);
+  onCleanup(() => clearTimeout(id));
+  return (
+    <view flexDirection="row" alignItems="center" height={28} paddingHorizontal={8} borderRadius={8}
+          background={fresh() ? "gray4" : "gray6"}>
+      <text fontSize={14} color="gray" width={52}>{`Lap ${props.lap.n}`}</text>
+      <text fontSize={15} fontWeight="500" tabular flexGrow={1} textAlign="right">{format(props.lap.split)}</text>
+    </view>
+  );
+}
+
 function App() {
   return (
     <view flexGrow={1} paddingHorizontal={6} paddingBottom={4} gap={6}>
       {/* The readout is a button only for its long press. */}
-      <button onLongPress={reset} alignItems="center" paddingVertical={2} pressedOpacity={0.8}>
+      <button onLongPress={() => !running() && !resetting() && reset()} alignItems="center" paddingVertical={2}
+              pressedOpacity={0.8}>
         <text fontSize={44} fontWeight="600" tabular minScale={0.6} color={running() ? "white" : "gray"}>
           {format(elapsed())}
         </text>
-        <text fontSize={12} color="gray">
-          {running() ? "running" : elapsed() > 0 ? "hold to reset" : "ready"}
+        <text fontSize={12} color={resetting() ? "orange" : "gray"}>
+          {resetting() ? "saving laps…" : running() ? "running" : elapsed() > 0 ? "hold to reset" : "ready"}
         </text>
       </button>
 
       <view flexDirection="row" gap={6}>
-        <RoundButton label="Lap" onPress={lap} disabled={!running()} background="gray5" color="white" />
-        <RoundButton label={running() ? "Stop" : "Start"} onPress={startStop}
+        <RoundButton label="Lap" onPress={lap} disabled={!running() || resetting()} background="gray5" color="white" />
+        <RoundButton label={running() ? "Stop" : "Start"} onPress={startStop} disabled={resetting()}
                      background={running() ? "#FF453A40" : "#30D15840"} color={running() ? "red" : "green"} />
       </view>
 
@@ -99,12 +131,7 @@ function App() {
           {/* <For> (keyed, the default) hands each row its item as is; a new
               lap is one row inserted at the top, the others stay. */}
           <For each={laps()} fallback={<text fontSize={13} color="gray" textAlign="center" marginTop={6}>No laps yet</text>}>
-            {(l) => (
-              <view flexDirection="row" alignItems="center" height={28} paddingHorizontal={8} borderRadius={8} background="gray6">
-                <text fontSize={14} color="gray" width={52}>{`Lap ${l.n}`}</text>
-                <text fontSize={15} fontWeight="500" tabular flexGrow={1} textAlign="right">{format(l.split)}</text>
-              </view>
-            )}
+            {(l) => <LapRow lap={l} />}
           </For>
         </view>
       </scroll>

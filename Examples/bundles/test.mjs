@@ -24,7 +24,15 @@ const CTX = { width: 184, height: 224 }; // a 41 mm watch's content area, about
 // button whose text contains label; { crown: n } turns the attached crown to
 // n; { wait: ms } and { state: … } go to the driver as they are; { expect:
 // "text" } / { expectNot: "text" } check the screen's text; { expectProp:
-// [type, prop, value] } checks that prop on every attached node of a type.
+// [type, prop, value] } checks that prop on every attached node of a type;
+// { expectIn: [container, label, type, prop, value] } checks it on every node
+// of `type` in the innermost `container` node whose text contains label (a
+// row's toggle, a button's own disabled); { expectCleared: ms } checks that a
+// timer set for ms was cleared before it fell due (an onCleanup ran).
+//
+// Each Solid 2 behaviour an example shows is asserted at the moment it is
+// visible: a check right after a tap sees the screen before any timer (a
+// pretend save or load) has settled, a check after a wait sees it after.
 const SCENARIOS = {
   stopwatch: [
     { expect: "0:00.0" }, { expect: "ready" }, { expect: "No laps yet" },
@@ -33,41 +41,99 @@ const SCENARIOS = {
     { expect: "0:02.5" }, { expect: "running" },
     { press: "Lap" },
     { expect: "Lap 1" }, { expectNot: "No laps yet" },
+    { expectIn: ["view", "Lap 1", "view", "background", "gray4"] }, // lit while new
     { wait: 1200 },
     { press: "Lap" },
     { expect: "Lap 2" }, { expect: "0:01.2" },
+    { wait: 400 },
+    { expectIn: ["view", "Lap 1", "view", "background", "gray6"] }, // its timer fired
+    { expectIn: ["view", "Lap 2", "view", "background", "gray4"] },
     { press: "Stop" },
     { expect: "hold to reset" }, { expect: "Start" },
-    { wait: 1000 },
-    { expect: "0:03.7" },
+    { wait: 600 },
+    { expect: "0:04.1" },
+    // The reset is an action: its writes are held while the hand-off is in
+    // flight, so the time and both laps stay on screen; only the optimistic
+    // flag shows, on the label and the buttons.
     { longPress: "hold to reset" },
-    { expect: "0:00.0" }, { expect: "No laps yet" },
+    { expect: "saving laps…" }, { expect: "0:04.1" }, { expect: "Lap 1" }, { expect: "Lap 2" },
+    { expectNot: "No laps yet" },
+    { expectIn: ["button", "Start", "button", "disabled", true] },
+    { wait: 200 },
+    { expect: "saving laps…" }, { expect: "Lap 2" }, { expectNot: "No laps yet" },
+    { wait: 200 }, // the hand-off settles: everything lands in one update
+    { expect: "0:00.0" }, { expect: "No laps yet" }, { expect: "ready" }, { expectNot: "saving laps…" },
+    { expectNot: "Lap 1" }, { expectIn: ["button", "Start", "button", "disabled", false] },
+    // Lap 2's highlight timer had not fired: its row's onCleanup cleared it.
+    { expectCleared: 1500 },
   ],
   checklist: [
-    { expect: "0 / 7" }, { expectProp: ["progress", "value", 0] },
+    { expect: "0 / 7" }, { expect: "Today" }, { expectProp: ["progress", "value", 0] },
+    // Optimistic: the row, the counts (a projection of the shown rows) and
+    // the bar flip at once, while the save is still in flight.
     { press: "Buy milk" },
-    { expect: "1 / 7" }, { expectProp: ["progress", "value", 1 / 7] },
+    { expect: "1 / 7" }, { expect: "Saving…" }, { expectProp: ["progress", "value", 1 / 7] },
+    { expectIn: ["button", "Buy milk", "toggle", "value", true] },
+    { wait: 700 }, // save 1 succeeds: the store has it, the guess is gone, the row stays
+    { expect: "1 / 7" }, { expect: "Today" }, { expectNot: "Saving…" },
+    { expectIn: ["button", "Buy milk", "toggle", "value", true] },
     { press: "Call the dentist" },
-    { press: "Buy milk" },
-    { press: "Buy milk" },
+    { wait: 700 }, // save 2 succeeds
     { expect: "2 / 7" },
+    // Save 3 fails: the untick shows at once, then reverts, with a message.
+    { press: "Buy milk" },
+    { expect: "1 / 7" }, { expectIn: ["button", "Buy milk", "toggle", "value", false] },
+    { wait: 700 },
+    { expect: "2 / 7" }, { expectIn: ["button", "Buy milk", "toggle", "value", true] },
+    { expect: "Not saved, try again" }, { expect: "Today" },
+    { wait: 2000 },
+    { expectNot: "Not saved" },
     { press: "Clear done" },
     { expect: "0 / 5" }, { expectNot: "Buy milk" }, { expectNot: "Call the dentist" },
     { state: { items: ["Pack lunch", "Charge headphones"] } },
     { expect: "0 / 2" }, { expectNot: "Water the plants" },
     { press: "Pack lunch" },
+    { wait: 700 }, // save 4
     { press: "Charge headphones" },
+    { wait: 700 }, // save 5
+    { expect: "2 / 2" },
     { press: "Clear done" },
     { expect: "All clear" },
   ],
   gauge: [
-    { expect: "LOW" }, { expectProp: ["progress", "value", 0] },
+    // <Loading>: its fallback until the first table lands.
+    { expect: "Loading bands…" }, { expectNot: "LOW" },
+    { wait: 500 },
+    { expect: "LOW" }, { expect: "Wide" }, { expectNot: "Loading bands…" },
+    { expectProp: ["progress", "value", 0] }, { expectProp: ["progress", "opacity", 1] },
     { crown: 42 },
     { expect: "42" }, { expect: "LOW" }, { expectProp: ["progress", "value", 0.42] },
     { crown: 72 },
     { expect: "HIGH" },
-    { crown: 90 },
-    { expect: "MAX" }, { expectProp: ["progress", "color", "red"] },
+    // A new table in flight: the profile switches at once (createDeferred
+    // holds nothing), the old table stays (no fallback) and isPending dims
+    // the ring.
+    { press: "Wide" },
+    { expect: "Tight" }, { expect: "HIGH" }, { expectNot: "Loading bands…" },
+    { expectProp: ["progress", "opacity", 0.4] },
+    { wait: 200 },
+    { crown: 80 }, // the crown still drives the level while the table loads
+    { expect: "80" }, { expectProp: ["progress", "value", 0.8] }, { expectProp: ["progress", "opacity", 0.4] },
+    { wait: 300 },
+    { expect: "MAX" }, { expectProp: ["progress", "opacity", 1] }, { expectProp: ["progress", "color", "red"] },
+    { crown: 50 },
+    { expect: "HIGH" },
+    // Back to "Wide": the third load fails. <Errored> shows the error and
+    // Retry; the stale table does not mask it.
+    { press: "Tight" },
+    { expect: "Wide" }, { expect: "HIGH" }, { expectProp: ["progress", "opacity", 0.4] },
+    { wait: 500 },
+    { expect: "Table unavailable" }, { expect: "Retry" }, { expectNot: "HIGH" }, { expect: "Wide" },
+    { press: "Retry" },
+    { expectNot: "Table unavailable" }, { expectNot: "Loading bands…" },
+    { expect: "HIGH" }, { expectProp: ["progress", "opacity", 0.4] },
+    { wait: 500 },
+    { expect: "LOW" }, { expect: "50" }, { expect: "Wide" }, { expectNot: "Retry" },
     { press: "Reset" },
     { expect: "LOW" }, { expectProp: ["crown", "value", 0] },
   ],
@@ -199,6 +265,31 @@ for (const name of examples) {
           const ok = typeof want === "number" ? Math.abs(got - want) < 1e-9 : got === want;
           if (!ok) throw new Error(`${type} ${tag} ${prop} = ${JSON.stringify(got)}, want ${JSON.stringify(want)}`);
         }
+      } else if ("expectIn" in s) {
+        const [container, label, type, prop, want] = s.expectIn;
+        const inside = (tag, anc) => {
+          for (let p = tag; p; p = t.nodes.get(p).parent) if (p === anc) return true;
+          return false;
+        };
+        const hits = t.attached.filter((tag) => t.nodes.get(tag).type === container && t.textOf(tag).includes(label));
+        const innermost = hits.filter((tag) => !hits.some((o) => o !== tag && inside(o, tag)));
+        if (innermost.length !== 1) throw new Error(`<${container}> with "${label}": ${innermost.length} matches (want 1); screen: ${t.screen}`);
+        const tags = t.attached.filter((tag) => t.nodes.get(tag).type === type && inside(tag, innermost[0]));
+        if (!tags.length) throw new Error(`no ${type} in <${container}> "${label}"`);
+        for (const tag of tags) {
+          const got = t.nodes.get(tag).props[prop];
+          if (got !== want) throw new Error(`${type} in "${label}": ${prop} = ${JSON.stringify(got)}, want ${JSON.stringify(want)}`);
+        }
+      } else if ("expectCleared" in s) {
+        const set = new Set();
+        let cleared = false;
+        for (const line of lines) {
+          const [op, id, ms] = JSON.parse(line);
+          if (op === "setTimer" && ms === s.expectCleared) set.add(id);
+          else if (op === "#timer") set.delete(id);
+          else if (op === "clearTimer" && set.has(id)) cleared = true;
+        }
+        if (!cleared) throw new Error(`no ${s.expectCleared} ms timer was cleared before it fell due`);
       } else if ("press" in s || "longPress" in s) {
         const label = s.press ?? s.longPress;
         const tag = find(t, (n, tg) => n.type === "button" && t.textOf(tg).includes(label), `button "${label}"`);

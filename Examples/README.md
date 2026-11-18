@@ -3,14 +3,49 @@
 Three small watch apps written as solid-watch bundles, and a watch app that
 runs them.
 
-| example | what it shows | nodes |
+| example | what it does | nodes |
 |---|---|---|
-| `bundles/stopwatch` | Start/Stop and Lap, the elapsed time in tabular figures, a scrolling lap list, a long press on the time to reset | `view`, `text`, `button` (`onPress`, `onLongPress`, `disabled`), `scroll`, `haptic`; `setInterval` on the host's timers, `Date.now()` on its clock |
-| `bundles/checklist` | a list of toggle rows, a done/total bar, "Clear done"; the list lives in the bundle, and a state `{ items: [...] }` replaces it | `view`, `text`, `button` (a toggle row), `toggle` (drawn only), `progress` (bar), `scroll`, `icon` |
-| `bundles/gauge` | the Digital Crown sets a level 0–100: a ring with the number in it, coloured by band (green, yellow from 60, red from 85) with an icon per band, a strip of the bands, Reset | `crown`, `progress` (ring, with children), `icon`, `text`, `view`, `button`, `haptic` |
+| `bundles/stopwatch` | Start/Stop and Lap, the elapsed time in tabular figures, a scrolling lap list (the newest lit for a moment), a long press on the time to reset, which first hands the session over (a 400 ms stand-in) | `view`, `text`, `button` (`onPress`, `onLongPress`, `disabled`), `scroll`, `haptic`; `setInterval` / `setTimeout` on the host's timers, `Date.now()` on its clock |
+| `bundles/checklist` | a list of toggle rows, a done/total bar, "Clear done"; each tick is saved (a 600 ms stand-in, every third save fails); a state `{ items: [...] }` replaces the list | `view`, `text`, `button` (a toggle row), `toggle` (drawn only), `progress` (bar), `scroll`, `icon` |
+| `bundles/gauge` | the Digital Crown sets a level 0–100: a ring with the number in it, coloured by band with an icon per band, a strip of the bands; the band table is loaded ("Wide" or "Tight", 500 ms, every third load fails); Reset | `crown`, `progress` (ring, with children), `icon`, `text`, `view`, `button`, `haptic` |
 
-Each `index.jsx` is commented for a reader learning the API; the package's
-README is the reference (nodes and props: its "Controls and styling").
+Each `index.jsx` is commented for a reader learning both Solid 2 and the
+watch nodes; its header lists the Solid 2 features it uses. The package's
+README is the reference for nodes and props (its "Controls and styling").
+
+## Solid 2, feature by feature
+
+Solid 2 renamed or replaced several 1.x APIs: there is no `createAsync`,
+`Suspense`, `ErrorBoundary`, `startTransition` or `useTransition`. Async
+lives in computations (a memo whose function returns a promise), the
+boundaries are `<Loading>` and `<Errored>`, and a transition is an
+`action`. The examples use the 2.0 names (solid-js 2.0.0, checked against
+its own type declarations), and `npm test` asserts each behaviour in the
+recording host at the moment it is visible.
+
+| feature | example | what it does there | asserted by `test.mjs` |
+|---|---|---|---|
+| `createStore` (draft setter) | checklist | the saved rows, one store of `{ id, label, done }`; no signal per row | rows and counts follow every write; "Clear done" and a host state replace rows |
+| `createOptimisticStore` | checklist | the rows on screen: a tick shows at once, over the store | right after a tap the row's toggle, the count and the bar have flipped, the save still in flight |
+| `action(function* …)` | checklist | the save: the guess, `yield` the save, then the store write | a successful save keeps the row; the third (failing) save reverts it and shows "Not saved, try again" |
+| `createOptimistic(false)` | checklist, stopwatch | a "Saving…" / "saving laps…" flag that clears itself when the action ends | shown during the action, gone after |
+| `createProjection` | checklist | the done / total counts as a derived store | "1 / 7" etc., optimistic and settled |
+| `<Show>` | checklist | the empty state, the error message | "All clear" at the end |
+| async computation (`createDeferred`) | gauge | the band table, from a promise; lags but never leads | see the next three rows |
+| `<Loading>` | gauge | a placeholder until the first table lands | "Loading bands…", then the gauge |
+| `isPending` | gauge | dims the ring while a new table is in flight; the old table stays | ring opacity 0.4 with the old band, then 1 with the new one; the crown still moves the level meanwhile |
+| `<Errored>` and its `reset` | gauge | a failed load shows the error and Retry | "Table unavailable" and Retry; after Retry the last table comes back dimmed, then the new one |
+| `createEffect(compute, apply)` | stopwatch | the 100 ms interval exists only while running; apply returns its cleanup | the time advances while running, not when stopped |
+| `onCleanup` | stopwatch | a lap row's highlight timer is cleared when the row goes | a reset before it fires clears it (`clearTimer` in the log) |
+| `action` as a transition | stopwatch | the reset's writes are held until the hand-off it yields settles | during the hand-off the old time and both laps stay (no empty list); then all clear in one update |
+| `<For>` with `fallback` | stopwatch, checklist, gauge | the lap list ("No laps yet"), the rows, the band strip | the fallback before the first lap and after the reset |
+
+Two findings from running them: an async `createMemo` for the gauge's
+table holds the write that started the reload, and with it the crown's
+writes to the level its readers share (the number froze until the table
+landed), so the gauge uses `createDeferred`, which holds nothing. And
+`latest()` has nothing to show there: with `createDeferred` the profile
+itself switches at once.
 
 ## What a bundle is
 

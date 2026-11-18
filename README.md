@@ -114,7 +114,10 @@ Solid 2 semantics apply (its migration guide): effects are split
 (`createEffect(compute, apply)`, the apply half returns its cleanup), stores
 come from `solid-js`, writes are batched and read back after a flush. A
 setter called in a handler, `onState` or a timer is applied before that call
-commits (next section).
+commits (next section). The example bundles (`Examples/README.md`) use
+Solid 2's stores, optimistic updates, async computations under `<Loading>`
+and `<Errored>`, and actions as transitions, each proven in the recording
+host.
 
 ## Batching and commits
 
@@ -683,15 +686,26 @@ directory, so it can be split out on its own.
 ## Repository
 
 Public at [github.com/esensible/solid-watch](https://github.com/esensible/solid-watch),
-exported from the monorepo it is developed in (a `git subtree split` of
-this directory, by `tools/publish.sh`): changes are made there, not in the
-public repository, and each export fast-forwards it. A clone needs the
-engine's sources for the tests and the framework:
-`git submodule update --init`.
+exported from the monorepo it is developed in by `tools/publish.sh`:
+changes are made there, not in the public repository, which is never edited
+or pulled from. A public commit is one export: its tree is this directory
+exactly as it is in the monorepo, its one parent the previous public commit
+(so each export fast-forwards the public branch), and its message the top
+entry of [CHANGELOG.md](CHANGELOG.md) (`solid-watch: <summary>` and the
+entry's text), ending with the monorepo commit and tree it was taken from.
+The monorepo's own history is not published. A clone needs the engine's
+sources for the tests and the framework: `git submodule update --init`.
+
+Before an export, add its entry at the top of CHANGELOG.md
+(`## <date or Unreleased> - <summary>`, then what changed): an export whose
+top entry is the one the public repository already has is refused, unless
+the message is given with `--message <file-or-text>`.
 
 `tools/publish.sh` (in a dev container with git, node, a C compiler and
-ssh) splits, checks the split on its own outside the monorepo (`npm ci`,
-qjs built from the submodule, `CHECK_CLEAN=1 sh test/all.sh`; `swift build`
-too where Xcode is found, else `swift test` by hand on the Mac) and shows
-whether each public branch fast-forwards; `--push <branch>` then pushes,
-fast-forward only.
+ssh) fetches the public branch and stops if it already has this tree;
+otherwise it composes the message, checks the tree on its own outside the
+monorepo (`npm ci`, qjs built from the submodule, `CHECK_CLEAN=1 sh
+test/all.sh`; `swift build` too where Xcode is found, else `swift test` by
+hand on the Mac), builds the commit and shows it (a dry run by default);
+`--push <branch>` then pushes it, fast-forward only. `--trailers` adds
+attribution trailers to the message; by default there are none.
